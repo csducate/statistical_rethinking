@@ -1,0 +1,10 @@
+---
+title: 'Chapter 7: Back-Door Paths & Ulysses'' Compass'
+author: "Caitlin S. Ducate"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    keep_md: yes
+    toc: yes
+---
+
