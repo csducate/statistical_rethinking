@@ -372,20 +372,83 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#video-lectures">Video Lectures</a><ul>
-<li><a href="#lecutre-07">Lecutre 07</a></li>
+<li><a href="#lecture-07">Lecture 07</a><ul>
+<li><a href="#goals">Goals</a></li>
+<li><a href="#notes">Notes</a></li>
+</ul></li>
 <li><a href="#lecture-08">Lecture 08</a></li>
 </ul></li>
+<li><a href="#book-notes">Book Notes</a></li>
 </ul>
 </div>
 
 <div id="video-lectures" class="section level1">
 <h1>Video Lectures</h1>
-<div id="lecutre-07" class="section level2">
-<h2>Lecutre 07</h2>
+<div id="lecture-07" class="section level2">
+<h2>Lecture 07</h2>
+<ul>
+<li>Note: first half covered last of content related to Ch06</li>
+</ul>
+<div id="goals" class="section level3">
+<h3>Goals</h3>
+<ul>
+<li>Understand <em>overfitting</em> and <em>underfitting</em></li>
+<li>Introduct <em>regularization</em></li>
+<li>Cross-validation &amp; information criteria
+<ul>
+<li>Estimate predictive accuracy</li>
+<li>Estimate overfitting risk</li>
+<li>Understand how overfitting relates to complexity</li>
+<li>Identify influential observations</li>
+</ul></li>
+<li>See that prediction &amp; causal inference are different objectives</li>
+</ul>
+</div>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<ul>
+<li><em>Stargazing</em>: using asterisks (i.e. p-values) to select model terms
+<ul>
+<li>p-values are <em>not</em> designed to do this! They have nothing to say about predictive accuracy of the model</li>
+</ul></li>
+<li>Overfitting &amp; Underfitting: the Scylla &amp; Charybdis of Statistics
+<ul>
+<li>Will always have to navigate the narrow strait between the two</li>
+</ul></li>
+<li>The problem with parameters
+<ul>
+<li>Every time to add a parameter, the model will fit the sample better</li>
+<li>So, cannot use fit to sample as indicator of model accuracy</li>
+<li><em>Underfitting</em>: learning too little from the data
+<ul>
+<li>Fit and predict poorly</li>
+</ul></li>
+<li><em>Overfitting</em>: learning too much from the data
+<ul>
+<li>Fit better and predict worse</li>
+<li>Multilevel models not as susceptible to overfitting–one reason why they are great</li>
+</ul></li>
+</ul></li>
+<li>Variance “explained”: <span class="math inline">\(R^2\)</span>
+<ul>
+<li><span class="math inline">\(R^2 = \frac{var(outcome)-var(residuals)}{var(outcome)} = 1 - \frac{var(residuals)}{var(outcome)}\)</span></li>
+<li>You can get an <span class="math inline">\(R^2 = 1\)</span> if you have as many parameters as data points</li>
+</ul></li>
+<li>Model fitting: formal definitions
+<ul>
+<li><em>Underfitting</em>: insensitive to data</li>
+<li><em>Overfitting</em>: very sensitive to exact data</li>
+<li><em>Regular fit</em>: sensitive only to the regular features of the sample, not the features idiosyncratic to the sample</li>
+</ul></li>
+</ul>
+</div>
 </div>
 <div id="lecture-08" class="section level2">
 <h2>Lecture 08</h2>
 </div>
+</div>
+<div id="book-notes" class="section level1">
+<h1>Book Notes</h1>
 </div>
 
 
