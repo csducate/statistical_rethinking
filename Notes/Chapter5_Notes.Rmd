@@ -3,10 +3,10 @@ title: "Statistical Rethinking: Chapter 5 Notes"
 author: "Caitlin S. Ducate"
 date: "5/21/2020"
 output: 
-  html_document:
-    keep_md: TRUE
+  html_document: 
+    keep_md: yes
+    toc: yes
 ---
-
 
 # CHAPTER 5: The Many Variables & Spurious Waffles
 
@@ -19,7 +19,7 @@ library(devtools)
 install_github("rmcelreath/rethinking",ref="Experimental")
 ```
 
-```{r, results = 'hide'}
+```{r, message = FALSE}
 # If above code-chunk has run:
 library(rethinking)
 ```
@@ -183,7 +183,9 @@ str(d)
 d$kCal <- scale(d$kcal.per.g)
 d$neoCor <- scale(d$neocortex.perc)
 d$M <- scale(log(d$mass))
+```
 
+```{r, eval = FALSE}
 # Run bivariate regression with vague priors
 ## This model will throw an error because of missing values in the neocortex data
 m5.5_draft <- quap(
@@ -195,7 +197,9 @@ m5.5_draft <- quap(
     sigma ~ dexp(1)
   ), data = d
 )
+```
 
+```{r}
 # Make a new data frame without missing values
 ## Looks for rows with complete cases for 3 variables
 dcc <- d[complete.cases(d$kCal, d$neoCor, d$M), ]
@@ -213,6 +217,8 @@ m5.5_draft <- quap(
 
 ```
 
+Check the priors--are they reasonable?
+
 ```{r}
 # Prior predictive checks
 prior <- extract.prior(m5.5_draft)
@@ -222,9 +228,11 @@ plot(NULL, xlim = xseq, ylim = xseq)
 for(i in 1:50){
   lines(xseq, mu[i, ], col=col.alpha("black", 0.3))
 }
-# Produces crazy impossible outcomes
+```
 
+Nope! Prior predictive checks indicate that they produce crazy impossible outcomes. We need to tweak the priors to be more reasonable and realistic
 
+```{r}
 # Tweak the priors to be more reasonable
 m5.5 <- quap(
   alist(
@@ -259,9 +267,9 @@ shade(muPI, xseq)
 # Not very strong relationship indeed...
 ```
 
+### Model 5.6
 
-
-
+```{r}
 # New model! with mother body mass
 m5.6 <- quap(
   alist(
@@ -282,7 +290,11 @@ muPI <- apply(mu, 2, PI)
 plot(kCal ~ M, data = dcc)
 lines(xseq, muMean, lwd = 2)
 shade(muPI, xseq)
+```
 
+### Model 6.7: Multivariate model with neocortex & mass as predictors
+
+```{r}
 # Multivariate model with both predictors
 m5.7 <- quap(
   alist(
@@ -300,17 +312,27 @@ precis(m5.7)
 plot(coeftab(m5.5, m5.6, m5.7), pars=c("bM", "bN"))
 
 pairs(~kCal + M + neoCor, dcc)
+```
+
+## Section 5.3: Categorical Variables
 
 
-# ------
-# Section 5.3: Categorical Variables
-# ------
-
+```{r}
 # Load in Kalahari height data
 data("Howell1")
 d <- Howell1
 str(d)
+```
 
+### Indicator variables vs. Index Variables
+
+Indicator variables are the official name for dummy variables, and they are coded as 0 and 1. Indicator variables give each category a number beginning at 1. McElreath prefers indicator variables because they allow both the slope and intercept of your model to inform your estimate. With dummy variables, you cannot put a prior on the slope for the category coded as 0 because the slope drops out of the equation, leaving you only with the intercept. 
+
+### Binary Categories
+
+#### Model 5.8: Height ~ Sex
+
+```{r}
 # Recode male variable as 1s and 2s to make it an index variable
 d$sex <- ifelse(d$male==1, 2, 1)
 str(d$sex)
@@ -324,8 +346,74 @@ m5.8 <- quap(
   ), data = d
 )
 precis(m5.8, depth = 2)
+```
 
+Included `depth = 2` in `precis()` so that they would show vector parameters (such as the sex vector parameters).
+
+You can also calculate the difference between parameter estimates directly from the posterior. These are called a "contrast" because they contrast two different groups. 
+
+```{r}
 # Calculate difference between males and females on height
 post <- extract.samples(m5.8)
 post$diff_fm <- post$a[, 1] - post$a[ , 2]
 precis(post, depth = 2)
+```
+
+### Many Categories
+
+```{r}
+# Load in the milk data again
+data(milk)
+d <- milk
+
+# Get the unique values for the clade & put them into a variable
+unique(d$clade)
+d$clade_id <- as.integer(d$clade)
+```
+
+#### Model 5.9: Kcal ~ Clade
+
+```{r}
+## REMINDER: scale() turns values into z-scores
+d$K <- scale(d$kcal.per.g)
+m5.9 <- quap(
+  alist(
+    K ~ dnorm(mu, sigma),
+    mu <- a[clade_id],
+    a[clade_id] ~ dnorm(0, 0.5),
+    sigma ~ dexp(1)
+  ), data = d
+)
+
+labels <- paste("a[", 1:4, "]:", levels(d$clade), sep = "")
+plot(precis(m5.9, depth = 2, pars = "a"), 
+     labels = labels,
+     xlab = "Expected kcal (std)")
+```
+
+To add more categorical variables, do the same thing
+
+```{r}
+set.seed(63)
+d$house <- sample(rep(1:4, each = 8), size = nrow(d))
+```
+#### Model 5.10: Kcal ~ Clade + House
+
+```{r}
+m5.10 <- quap(
+  alist(
+    K~ dnorm(mu, sigma),
+    mu <- a[clade_id] + h[house],
+    a[clade_id] ~ dnorm(0, 0.5), 
+    h[house] ~ dnorm(0, 0.5),
+    sigma ~ dexp(1)
+  ), data = d
+)
+
+precis(m5.10, depth = 2)
+plot(precis(m5.10, depth = 2, pars = "h"))
+
+```
+
+House 4 (Slytherin) really stands out! Though interpretation is weird; Slytheran has higher kcal of milk??
+
