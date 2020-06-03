@@ -1,14 +1,14 @@
 ---
-title: "Statistical Rethinking: Chapter 5 Notes"
+title: "Chapter 5: The Many Variables & Spurious Waffles"
+subtitle: "Statistical Rethinking Notes"
 author: "Caitlin S. Ducate"
-date: "5/21/2020"
+date: "03 June, 2020"
 output: 
   html_document: 
     keep_md: yes
     toc: yes
+toc_title: "Table of Contents"
 ---
-
-# CHAPTER 5: The Many Variables & Spurious Waffles
 
 
 ```r
@@ -62,9 +62,9 @@ precis(m5.1)
 
 ```
 ##                mean         sd       5.5%      94.5%
-## a     -3.355203e-08 0.09737873 -0.1556300  0.1556300
-## bA    -5.684034e-01 0.10999975 -0.7442042 -0.3926025
-## sigma  7.883253e-01 0.07801123  0.6636482  0.9130023
+## a     -8.988357e-05 0.09737301 -0.1557108  0.1555310
+## bA    -5.683880e-01 0.10999182 -0.7441761 -0.3925998
+## sigma  7.882646e-01 0.07799630  0.6636114  0.9129177
 ```
 
 #### Checks
@@ -80,7 +80,7 @@ for (i in 1:50) {
 }
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 ```r
 # Posterior computation
@@ -93,16 +93,16 @@ precis(m5.1)
 
 ```
 ##                mean         sd       5.5%      94.5%
-## a     -3.355203e-08 0.09737873 -0.1556300  0.1556300
-## bA    -5.684034e-01 0.10999975 -0.7442042 -0.3926025
-## sigma  7.883253e-01 0.07801123  0.6636482  0.9130023
+## a     -8.988357e-05 0.09737301 -0.1557108  0.1555310
+## bA    -5.683880e-01 0.10999182 -0.7441761 -0.3925998
+## sigma  7.882646e-01 0.07799630  0.6636114  0.9129177
 ```
 
 ```r
 plot(m5.1)
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
 
 ### Model 2: Modelling the relationship between marriage rate and divorce
 
@@ -132,7 +132,7 @@ precis(m5.2)
 plot(m5.2)
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 ### Model 3: Modelling the relationship bewteen marriage rate, age of marriage, & divorce
 
@@ -163,7 +163,7 @@ precis(m5.3)
 plot(coeftab(m5.1, m5.2, m5.3), par = c("bA", "bM"))
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 #### Side Note: Simulating Divorce Data
 
@@ -234,7 +234,7 @@ shade(muPI, M_seq)
 shade (D_PI, M_seq)
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ## Section 5.2: Masked Relationship
 
@@ -315,7 +315,7 @@ for(i in 1:50){
 }
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 Nope! Prior predictive checks indicate that they produce crazy impossible outcomes. We need to tweak the priors to be more reasonable and realistic
 
@@ -342,7 +342,7 @@ for(i in 1:50) {
 }
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 ```r
 # Not a strong bivariate relationship....
@@ -367,7 +367,7 @@ lines(xseq, muMean, lwd=2)
 shade(muPI, xseq)
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
 
 ```r
 # Not very strong relationship indeed...
@@ -408,7 +408,7 @@ lines(xseq, muMean, lwd = 2)
 shade(muPI, xseq)
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 ### Model 6.7: Multivariate model with neocortex & mass as predictors
 
@@ -441,13 +441,13 @@ precis(m5.7)
 plot(coeftab(m5.5, m5.6, m5.7), pars=c("bM", "bN"))
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
 
 ```r
 pairs(~kCal + M + neoCor, dcc)
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-18-2.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-18-2.png)<!-- -->
 
 ## Section 5.3: Categorical Variables
 
@@ -568,7 +568,7 @@ plot(precis(m5.9, depth = 2, pars = "a"),
      xlab = "Expected kcal (std)")
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 To add more categorical variables, do the same thing
 
@@ -611,7 +611,7 @@ precis(m5.10, depth = 2)
 plot(precis(m5.10, depth = 2, pars = "h"))
 ```
 
-![](Chapter5_Notes_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
+![](Ch05_Notes_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
 
 House 4 (Slytherin) really stands out! Though interpretation is weird; Slytheran has higher kcal of milk??
 

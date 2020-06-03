@@ -1,14 +1,13 @@
 ---
-title: "Statistical Rethinking: Chapter 5 Notes"
+title: "Chapter 5: The Many Variables & Spurious Waffles"
+subtitle: "Statistical Rethinking Notes"
 author: "Caitlin S. Ducate"
-date: "5/21/2020"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_document: 
     keep_md: yes
     toc: yes
 ---
-
-# CHAPTER 5: The Many Variables & Spurious Waffles
 
 ```{r, eval = FALSE, results = 'hide'}
 # Setup
