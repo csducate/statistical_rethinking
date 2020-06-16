@@ -365,7 +365,7 @@ summary {
 <h1 class="title toc-ignore">Chapter 7: Ulysses’ Compass</h1>
 <h3 class="subtitle">Statistical Rethinking Notes</h3>
 <h4 class="author">Caitlin S. Ducate</h4>
-<h4 class="date">03 June, 2020</h4>
+<h4 class="date">12 June, 2020</h4>
 
 </div>
 
@@ -407,15 +407,15 @@ summary {
 <div id="notes" class="section level3">
 <h3>Notes</h3>
 <ul>
-<li><em>Stargazing</em>: using asterisks (i.e. p-values) to select model terms
+<li><p><em>Stargazing</em>: using asterisks (i.e. p-values) to select model terms</p>
 <ul>
 <li>p-values are <em>not</em> designed to do this! They have nothing to say about predictive accuracy of the model</li>
 </ul></li>
-<li>Overfitting &amp; Underfitting: the Scylla &amp; Charybdis of Statistics
+<li><p>Overfitting &amp; Underfitting: the Scylla &amp; Charybdis of Statistics</p>
 <ul>
 <li>Will always have to navigate the narrow strait between the two</li>
 </ul></li>
-<li>The problem with parameters
+<li><p>The problem with parameters</p>
 <ul>
 <li>Every time to add a parameter, the model will fit the sample better</li>
 <li>So, cannot use fit to sample as indicator of model accuracy</li>
@@ -429,12 +429,12 @@ summary {
 <li>Multilevel models not as susceptible to overfitting–one reason why they are great</li>
 </ul></li>
 </ul></li>
-<li>Variance “explained”: <span class="math inline">\(R^2\)</span>
+<li><p>Variance “explained”: <span class="math inline">\(R^2\)</span></p>
+<p><span class="math inline">\(R^2 = \frac{var(outcome)-var(residuals)}{var(outcome)} = 1 - \frac{var(residuals)}{var(outcome)}\)</span></p>
 <ul>
-<li><span class="math inline">\(R^2 = \frac{var(outcome)-var(residuals)}{var(outcome)} = 1 - \frac{var(residuals)}{var(outcome)}\)</span></li>
 <li>You can get an <span class="math inline">\(R^2 = 1\)</span> if you have as many parameters as data points</li>
 </ul></li>
-<li>Model fitting: formal definitions
+<li><p>Model fitting: formal definitions</p>
 <ul>
 <li><em>Underfitting</em>: insensitive to data</li>
 <li><em>Overfitting</em>: very sensitive to exact data</li>
@@ -445,6 +445,81 @@ summary {
 </div>
 <div id="lecture-08" class="section level2">
 <h2>Lecture 08</h2>
+<ul>
+<li>Information theory
+<ul>
+<li><p>Describes degree of uncertainty when outcome is known</p></li>
+<li><p>Information entropy: uncertainty in a probability distribution is average (minus) log-probability of an event</p>
+<p><span class="math inline">\(H(p) = -Elog(p_i) = -\sum p_i(log(p_i) - log(q_i))\)</span></p>
+<ul>
+<li><p>Entropy to accuracy</p>
+<p><span class="math inline">\(D_{KL}(p, q) = \sum_{i} p_i(log(p_i) - log(q_i))\)</span></p>
+<ul>
+<li>Two probability distributions: <em>p</em>, <em>q</em></li>
+<li><em>p</em> is true, <em>q</em> is model</li>
+<li>Distance from <em>q</em> to <em>p</em> describes the <strong>Divergence</strong> or how good of a model <em>q</em> is</li>
+</ul></li>
+</ul></li>
+<li><p>Simpler models are more accurate because they have higher entropy–they expect more things to possibly happen and are thus less surprised by more things</p></li>
+</ul></li>
+<li>Estimating divergence
+<ul>
+<li><p>Because we don’t know <em>p</em>, we need to estimate</p></li>
+<li><p>Can use the log-score (sum of log probabilities of each observation) to score accuracy of a model: <span class="math inline">\(S(q) = \sum log(q_i)\)</span></p></li>
+<li><p>In practice of Bayesian, there is a <em>distribution</em> of log scores, the <strong>log-pointwise-predictive density</strong></p>
+<p><span class="math inline">\(lppd(\gamma, \Theta) = \sum_i log(\frac{1}{S}) \sum_s p(y_i|\theta_s)\)</span></p></li>
+</ul></li>
+<li>Regularizing
+<ul>
+<li>Use informative, conservative priors to reduce overfitting
+<ul>
+<li>Model will learn less from sample but will perform better out of sample</li>
+<li>This is why weakly-informative priors perform better than flat priors–model will perform better out of sample</li>
+</ul></li>
+<li>Why don’t scientists do this more?
+<ul>
+<li>Not taught</li>
+<li>Makes significant results harder</li>
+<li>Scientists not judged on accuracy</li>
+</ul></li>
+</ul></li>
+<li>How to estimate out-of-sample deviance?
+<ul>
+<li>In theory: cross validation
+<ul>
+<li>Leave out some observations</li>
+<li>Fit model on remaining observations</li>
+<li>Score model fit based on how well it fits the left-out data</li>
+<li>Average over many permutations of left-out sets to get an estimate of out-of-sample accuracy</li>
+<li>Most common way is to leave one out at a time–but for large samples, this takes forEVER
+<ul>
+<li>Can use Pareto-smoothed importance sampling (PSIS): <code>LOO</code> function in <code>rethinking</code>, also the <code>loo</code> package</li>
+</ul></li>
+</ul></li>
+<li>Also in theory: Information criteria
+<ul>
+<li>Approach originally by Akaike information criterion, but makes a lot of restrictive assumptions &amp; so is no longer useful</li>
+<li>WAIC (Widely Applicable Information Criterion) does not assume Gaussian posterior: <span class="math inline">\(WAIC(y,\Theta)=-2(lppd - \Sigma_i var_{\theta}log p(y_i|\Theta))\)</span></li>
+</ul></li>
+<li>Both perform similarly &amp; very well
+<ul>
+<li>When they disagree, it means there is some high-leverage point that they are handling differently–indicates you shouldn’t trust either method and dig into your data</li>
+</ul></li>
+</ul></li>
+<li>How to use CV &amp; WAIC
+<ul>
+<li>Avoid “model selection” (unless you <em>only</em> care about prediction)</li>
+<li>Practice model comparison
+<ul>
+<li>Multiple models for causal inference</li>
+<li>Multiple models for explanations</li>
+</ul></li>
+<li>Use the <code>compare()</code> function in <code>rethinking</code> to compare <code>quap()</code> models
+<ul>
+<li>Use cautiously–the model which makes the best predictions is not always the most explanatory model</li>
+</ul></li>
+</ul></li>
+</ul>
 </div>
 </div>
 <div id="book-notes" class="section level1">
