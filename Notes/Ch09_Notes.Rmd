@@ -78,12 +78,7 @@ for (i in 1:num_weeks) {
       * You want the biggest size you can get away with because it's more efficient, but if it's too large, you'll circle back on your trajectory & come back to where you started
     + Stan (a C++ library) uses a primitive AI called NUTS (No U-Turn Sampler)
       * Runs a sampler to find the best step size and step number
-      
-
-
-
-
-
-
 
 # Book Notes
+
+
