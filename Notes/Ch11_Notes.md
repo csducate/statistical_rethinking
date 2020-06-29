@@ -30,6 +30,23 @@ output:
   - Use a log-link function--forces linear model to be positive because the outcome (count value) has to be positive
     + Maps all negative numbers to [0, 1], and all positive numbers mapped to [1, $\infty$]
 
+## Lecture 13
+
+* Generalized Linear Madness
+  - Models can be terrible for a variety of reasons
+    + Intercepts don't pass through origin
+    + Doesn't behave properly in areas where we *know* how the data behave
+  - Can usually do better if you first think *scientifically* before making a *statistical* model
+* Thinking scientifically
+  - Often care about dynamic systems, but don't always have that data
+  - Instead, can solve for steady state expectation & model that
+* Survival Analysis
+  - Like count models because they are fundamentally about rates
+  - Can't ignore censored cases--still useful info for inference
+    + Left-censored: don't know when time started
+    + Right-censored: Something cut observation off before event occurred
+* Example: Time to Adoption for Cats
+  - For observed adoptions, probability of adoption decays exponentially
 
 # Book Notes
 
