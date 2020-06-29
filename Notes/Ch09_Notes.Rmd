@@ -1,0 +1,89 @@
+---
+title: "Chapter 9: Markov Chain Monte Carlo"
+subtitle: "Statistical Rethinking Notes"
+author: "Caitlin S. Ducate"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    keep_md: yes
+    toc: yes
+---
+
+# Video Lectures 
+
+##  Lecture 10
+
+* Bayesian is *not* about how to get a posterior distribution--it's about the posterior distribution itself
+  - Ways to compute the posterior
+    1. Analytic approach: rarely possible--not computable
+    2. Grid approximation: very intensive calculations
+    3. Quadratic approximation: super effective for a wide array of simple models
+    4. Markov chain Monte Carlo: less intensive than grid approximation; works with most models
+
+* How the Metropolis Algorithm works:
+```{r}
+library(rethinking)
+
+num_weeks <- 1e5
+# Note: good practice to "initialize" storage space at the beginning (e.g. filling a vector with the number of positions you'll fill in the for-loop) rather than initializing as you go--it's faster
+positions <- rep(0, num_weeks)
+current <- 10
+
+for (i in 1:num_weeks) {
+  # record current position
+  positions[i] <- current
+  
+  # flip coin to generate proposal
+  proposal <- current + sample(c(-1, 1), size = 1)
+  # now mke sure he loops around the archipelago
+  if(proposal < 1) proposal <- 10
+  if(proposal > 10) proposal <- 1
+
+  # move?
+  prob_move <- proposal/current
+  current <- ifelse(runif(1) < prob_move, proposal, current)
+}
+```
+
+* Metropolis algorism is a simple markov chain Monte Carlo
+  - *Chain*: is the sequence of draws from a distribution
+  - *Markov chain*: method of sampling where "history" (past draws or moves) doesn't influence current moves
+  - *Monte Carlo*: random simulation
+  - Can use this method to explore parameters in proportion to their posterior probability
+  - Optimization is not a good strategy in high dimensions b/c you need the full distribution
+  - This works--in the long rung
+    + Sometimes, this can take a *very* long time if you have a lot of parameters--there are alternatives
+* MCMC strategies
+  - Metropolis
+    + Metropolis-Hastings: more general than OC Metropolis 
+    + Gibbs sampling: efficient version of Metropolis-Hastings
+    + All Metropolis algorithms use "guess and check" strategies
+  - Hamiltonian Monte Carlo (HMC) is fundamentally different--does not guess & check
+* How does Hamiltonian Monte Carlo work?
+  - Problems with Gibbs sampling
+    * High-dimension spaces are concentrated
+    * GS gets stuck & falls back on a random walk, which is *slow* and inefficient because it keeps doubling back on itself
+  - Hamiltonian dynamics
+    * Represents parameter state as a particle
+    * Simulates the flicking around of that particle on a frictionless log-posterior distribution (which is a bowl)
+    * Records the position
+    * Flick the parameter again in a different, random direction
+    * All proposals are good proposals because they will explore the whole space of value because it follows the curvature of the posterior--won't get stuck in steep, improbable areas
+    * Also doesn't risk autocorrelation issues as much
+* Features of HMC
+  - Has extra variables (momentum & energy) which seem annoying but provide useful diagnostics
+    + When HMC breaks, it breaks hard & lets you know--this is a good thing because Metropolis algorithms won't tell you if they are breaking
+  - Requires some extra tuning
+    + Step size: how long we run each particle simulation
+      * You want the biggest size you can get away with because it's more efficient, but if it's too large, you'll circle back on your trajectory & come back to where you started
+    + Stan (a C++ library) uses a primitive AI called NUTS (No U-Turn Sampler)
+      * Runs a sampler to find the best step size and step number
+      
+
+
+
+
+
+
+
+# Book Notes

@@ -1,0 +1,28 @@
+---
+title: "Chapter 8: Conditional Manatees"
+subtitle: "Statistical Rethinking Notes"
+author: "Caitlin S. Ducate"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    keep_md: yes
+    toc: yes
+---
+
+# Video Lectures
+
+##  Lecture 09
+
+* Stop "testing", start *thinking*
+* Consider selection bias in your sample--may totally changer interpretation of your analysis
+* Example: Why does ruggedness help African economies but not European countries
+  - Don't split the dataset--let the model to split it and tell you whether the split is meaningful
+  - Add an index variable on the incercept ($\alpha_{Country}$) is good, but an index variable on the slop is *better*
+    + $\mu = \alpha_{Country[i]} + b_{Country[i]}$
+    + Hurray! This is an interaction. You made a model with an interaction.
+* Example 2: Tulip blooms
+  - When you make a model with the interaction of continuous variables, you multiply the 2 interactions--WHY?!?!
+  - Because the interaction term makes a linear model that is dependent (conditional)
+  - To plot an interaction, should have at least 3 versions--a middle range, and two extremes
+    + May need even more, but 3 is a minimum
+* Higher-order interaction
