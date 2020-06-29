@@ -42,6 +42,11 @@ output:
     + log-odds of +-1 == p of 0.73
     + log-odds of +-3 == p of 0.95
     + log-odds of +-4 == always or never
+* Alternatives to logit link
+  - Probit (common in econ)
+  - Complementary-log-log (clog)
+* Picking priors
+  - Prior predictive simulation--hard to intuit what a reasonable logit prior would be
 
 
   
