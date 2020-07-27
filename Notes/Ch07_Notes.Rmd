@@ -114,11 +114,11 @@ output:
 
 * Setup:
 
-```{r, message = FALSE}
+```{r setup, message = FALSE}
 library(rethinking)
 ```
 
-```{r}
+```{r data}
 sppnames <- c("afarensis", "africanus", "habilis", "boisei", "rudolfensis", "ergaster", "sapiens")
 brainvolcc <- c(438, 452, 612, 521, 752, 871, 1350)
 masskg <- c(37.0, 35.5, 34.5, 41.5, 55.5, 61.0, 53.5)
@@ -128,7 +128,7 @@ d <- data.frame(species = sppnames, brain = brainvolcc, mass = masskg)
 * Next, rescale the predictor and outcome variables
   - This improves ability to get model to fit and makes it easier to specify priors
   - However, do so responsibly--some variables (e.g. brain volume) won't make sense with a 0 reference point
-```{r}
+```{r standardize}
 # Convert mass to a z-score
 d$mass_std <- (d$mass - mean(d$mass))/sd(d$mass)
 
@@ -271,10 +271,79 @@ Consider model fitting as a form of data compression. You want to keep enough th
 ## 7.2 Entropy & Accuracy
 
 * **Information**: The reduction in uncertainty derived from learning an outcome
+* What makes a good measure of uncertainty?
+  - Is continuous
+  - Increases as the number of possible events increases
+  - Is additive
+* Information Entropy meets all of these criteria:
+  - $H(p) = -Elog(p_i) = -\sum p_ilog(p_i)$
+    + $n$ is the different possible events
+    + $i$ is each event
+    + $p_i$ is the probability of each event
+  - The uncertainty in a probability distribution is the average log-probability of an event
 
+* Example: if the true probabilities of rain and shine are $p_r = 0.3$ and $p_s = 0.7$, then:
 
+```{r}
+p <- c(0.3, 0.7)
+-sum(p * log(p))
+```
 
+  - BUT if we lived in Abu Dhabi, the probabilities of rain and shine might be $p_r = 0.01$ and $p_s = 0.99$:
 
+```{r}
+p <- c(0.01, 0.99)
+-sum(p * log(p))
+```
+  
+* **Divergence*: the aditional uncertainty induced by using probabilities from one distribution to describe another distribution
+  - also know as K-L (Kulback-Leibler) divergence
+  - Tells us how much uncertainty we introduce when we guess incorrectly about the true distribution of events
+    + $D_{KL}(p, q) = -\sum_i p_i(log(p_i) - log(q_i)) = \sum_i p_ilog(\frac{p_i}{q_i})$
+  - It's the average distance in the log probability between the target ($p$) and the model ($q$)
+  - Note that $H(p, q) \neq H(q, p)$, which means that we can minimize K-L divergence if we use a high-entropy model
+* What's the point of all of this?
+  - We needed a way to measure the distance of a model from our target: K-L divergence
+  - We needed a way to estimate the divergence with real models where we don't actually *know* the target
+* What do do when we don't know $p$:
+  - When comparing the divergence of two models, $Elog(p_i)$ subtracts out, just leaving the log-probabilities of the models
+    + $S(q) = \sum_i log(q_i)$ is the total score for model $q$
+    + This formula only makes sense when compared to another model--absolute value of entropy score is, on its own, uninterpretable
+  - In a Bayesian framework, you sum the log-probability over the entire posterior (rather than just the main point estimate)
+    + In other words, You need to log the average probability for each observation across the posterior
+  - In `rethinking` package, use the function `lppd`: **log-pointwise-predictive-density**
+  
+```{r}
+set.seed(1)
+lppd(m7.1, n = 1e4)
+```
+  - Output: the log-probability score for each observation; if you sum across them, you get the total log-probability score for the model + data
+    + Larger numbers are better
+    + Can also calculate **Deviance**, which is the lppd score multiplied by -2, so smaller values are better (this is there for historical reasons, not mathematical ones)
+  - Overthinking: Caluculating lppd in a Bayesian framework
+```{r lppd calculations}
+set.seed(1)
+logprob <- sim(m7.1, ll = TRUE, n = 1e4)
+n <- ncol(logprob)
+ns <- nrow(logprob)
+f <- function(i) log_sum_exp(logprob[,i]) - log(ns)
+(llpd <- sapply(1:n, f))
+sapply(list(m7.1, m7.2, m7.3, m7.4, m7.5, m7.6), function(m) sum(lppd(m)))
+```
+
+More complex models have higher lppd scores, but that will always be true. So we can't score models based on how they perform on training data, but rather how they perform on test data. Training data will always get better as you add parameters, but out-of-sample test data will *not*. The true model should minimize out-of-sample deviance, but it will not necessarily be the one that minimizes deviance *the most*--prediction and accuracy are two different goals.
+
+### Overthinking: Simulated training and testing--DO NOT EVALUATE
+```{r, eval = FALSE}
+N <- 20
+kseq <- 1:5
+dev <- sapply(kseq, function(k) {
+  print(k);
+  # For sim_train_test, N is number of cases simulated and k is number of parameters to fit
+  r <- mcreplicate(1e4, sim_train_test(N = N, k = k), mc.cores = 4);
+  c(mean(r[1,]), mean(r[2,]), sd(r[1,]), sd(r[2,]))
+})
+```
 
 
 

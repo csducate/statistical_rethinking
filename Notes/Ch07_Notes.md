@@ -2,7 +2,7 @@
 title: "Chapter 7: Ulysses' Compass"
 subtitle: "Statistical Rethinking Notes"
 author: "Caitlin S. Ducate"
-date: "21 July, 2020"
+date: "27 July, 2020"
 output: 
   html_document: 
     keep_md: yes
@@ -267,7 +267,7 @@ plot_R2 <- function(model) {
 plot_R2(m7.1)
 ```
 
-![](Ch07_Notes_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](Ch07_Notes_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ```r
 # Plot M7.2
@@ -275,7 +275,7 @@ post <- extract.samples(m7.2)
 plot_R2(m7.2)
 ```
 
-![](Ch07_Notes_files/figure-html/unnamed-chunk-10-2.png)<!-- -->
+![](Ch07_Notes_files/figure-html/unnamed-chunk-7-2.png)<!-- -->
 
 ```r
 # Plot m7.3
@@ -283,14 +283,14 @@ post <- extract.samples(m7.3)
 plot_R2(m7.3)
 ```
 
-![](Ch07_Notes_files/figure-html/unnamed-chunk-10-3.png)<!-- -->
+![](Ch07_Notes_files/figure-html/unnamed-chunk-7-3.png)<!-- -->
 
 ```r
 # Plot m7.6 (yes I skipped a few)
 plot_R2(m7.6)
 ```
 
-![](Ch07_Notes_files/figure-html/unnamed-chunk-10-4.png)<!-- -->
+![](Ch07_Notes_files/figure-html/unnamed-chunk-7-4.png)<!-- -->
 
 Because the 6th-degree polynomial passes exactly through each point, it has a perfect $R^2 = 1$. This is also why $\sigma$ had to be fixed to 0.001--if it were estimated, it would shrink to 0 because there would *be* no residual variance.
 
@@ -299,10 +299,107 @@ Consider model fitting as a form of data compression. You want to keep enough th
 ## 7.2 Entropy & Accuracy
 
 * **Information**: The reduction in uncertainty derived from learning an outcome
+* What makes a good measure of uncertainty?
+  - Is continuous
+  - Increases as the number of possible events increases
+  - Is additive
+* Information Entropy meets all of these criteria:
+  - $H(p) = -Elog(p_i) = -\sum p_ilog(p_i)$
+    + $n$ is the different possible events
+    + $i$ is each event
+    + $p_i$ is the probability of each event
+  - The uncertainty in a probability distribution is the average log-probability of an event
+
+* Example: if the true probabilities of rain and shine are $p_r = 0.3$ and $p_s = 0.7$, then:
 
 
+```r
+p <- c(0.3, 0.7)
+-sum(p * log(p))
+```
+
+```
+## [1] 0.6108643
+```
+
+  - BUT if we lived in Abu Dhabi, the probabilities of rain and shine might be $p_r = 0.01$ and $p_s = 0.99$:
 
 
+```r
+p <- c(0.01, 0.99)
+-sum(p * log(p))
+```
+
+```
+## [1] 0.05600153
+```
+  
+* **Divergence*: the aditional uncertainty induced by using probabilities from one distribution to describe another distribution
+  - also know as K-L (Kulback-Leibler) divergence
+  - Tells us how much uncertainty we introduce when we guess incorrectly about the true distribution of events
+    + $D_{KL}(p, q) = -\sum_i p_i(log(p_i) - log(q_i)) = \sum_i p_ilog(\frac{p_i}{q_i})$
+  - It's the average distance in the log probability between the target ($p$) and the model ($q$)
+  - Note that $H(p, q) \neq H(q, p)$, which means that we can minimize K-L divergence if we use a high-entropy model
+* What's the point of all of this?
+  - We needed a way to measure the distance of a model from our target: K-L divergence
+  - We needed a way to estimate the divergence with real models where we don't actually *know* the target
+* What do do when we don't know $p$:
+  - When comparing the divergence of two models, $Elog(p_i)$ subtracts out, just leaving the log-probabilities of the models
+    + $S(q) = \sum_i log(q_i)$ is the total score for model $q$
+    + This formula only makes sense when compared to another model--absolute value of entropy score is, on its own, uninterpretable
+  - In a Bayesian framework, you sum the log-probability over the entire posterior (rather than just the main point estimate)
+    + In other words, You need to log the average probability for each observation across the posterior
+  - In `rethinking` package, use the function `lppd`: **log-pointwise-predictive-density**
+  
+
+```r
+set.seed(1)
+lppd(m7.1, n = 1e4)
+```
+
+```
+## [1]  0.6098669  0.6483445  0.5496122  0.6234941  0.4648184  0.4347655 -0.8444747
+```
+  - Output: the log-probability score for each observation; if you sum across them, you get the total log-probability score for the model + data
+    + Larger numbers are better
+    + Can also calculate **Deviance**, which is the lppd score multiplied by -2, so smaller values are better (this is there for historical reasons, not mathematical ones)
+  - Overthinking: Caluculating lppd in a Bayesian framework
+
+```r
+set.seed(1)
+logprob <- sim(m7.1, ll = TRUE, n = 1e4)
+n <- ncol(logprob)
+ns <- nrow(logprob)
+f <- function(i) log_sum_exp(logprob[,i]) - log(ns)
+(llpd <- sapply(1:n, f))
+```
+
+```
+## [1]  0.6098669  0.6483445  0.5496122  0.6234941  0.4648184  0.4347655 -0.8444747
+```
+
+```r
+sapply(list(m7.1, m7.2, m7.3, m7.4, m7.5, m7.6), function(m) sum(lppd(m)))
+```
+
+```
+## [1]  2.424825  2.646561  3.694617  5.316186 14.112180 39.509528
+```
+
+More complex models have higher lppd scores, but that will always be true. So we can't score models based on how they perform on training data, but rather how they perform on test data. Training data will always get better as you add parameters, but out-of-sample test data will *not*. The true model should minimize out-of-sample deviance, but it will not necessarily be the one that minimizes deviance *the most*--prediction and accuracy are two different goals.
+
+### Overthinking: Simulated training and testing--DO NOT EVALUATE
+
+```r
+N <- 20
+kseq <- 1:5
+dev <- sapply(kseq, function(k) {
+  print(k);
+  # For sim_train_test, N is number of cases simulated and k is number of parameters to fit
+  r <- mcreplicate(1e4, sim_train_test(N = N, k = k), mc.cores = 4);
+  c(mean(r[1,]), mean(r[2,]), sd(r[1,]), sd(r[2,]))
+})
+```
 
 
 
