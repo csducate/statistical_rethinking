@@ -346,7 +346,7 @@ dev <- sapply(kseq, function(k) {
 ```
 
 
-
+Blah blah blah add some extra stuff to check that all is OK
 
 
 

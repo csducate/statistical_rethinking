@@ -358,7 +358,7 @@ lppd(m7.1, n = 1e4)
 ```
 
 ```
-## [1]  0.6098669  0.6483445  0.5496122  0.6234941  0.4648184  0.4347655 -0.8444747
+## [1]  0.6098667  0.6483434  0.5496078  0.6234931  0.4648128  0.4347586 -0.8444592
 ```
   - Output: the log-probability score for each observation; if you sum across them, you get the total log-probability score for the model + data
     + Larger numbers are better
@@ -375,7 +375,7 @@ f <- function(i) log_sum_exp(logprob[,i]) - log(ns)
 ```
 
 ```
-## [1]  0.6098669  0.6483445  0.5496122  0.6234941  0.4648184  0.4347655 -0.8444747
+## [1]  0.6098667  0.6483434  0.5496078  0.6234931  0.4648128  0.4347586 -0.8444592
 ```
 
 ```r
@@ -383,7 +383,7 @@ sapply(list(m7.1, m7.2, m7.3, m7.4, m7.5, m7.6), function(m) sum(lppd(m)))
 ```
 
 ```
-## [1]  2.424825  2.646561  3.694617  5.316186 14.112180 39.509528
+## [1]  2.424819  2.646561  3.694617  5.316186 14.112180 39.509528
 ```
 
 More complex models have higher lppd scores, but that will always be true. So we can't score models based on how they perform on training data, but rather how they perform on test data. Training data will always get better as you add parameters, but out-of-sample test data will *not*. The true model should minimize out-of-sample deviance, but it will not necessarily be the one that minimizes deviance *the most*--prediction and accuracy are two different goals.
@@ -402,7 +402,7 @@ dev <- sapply(kseq, function(k) {
 ```
 
 
-
+Blah blah blah add some extra stuff to check that all is OK
 
 
 
